@@ -19,6 +19,7 @@ func GetMoviesOfSpecies(c *gin.Context) {
 
 	speciesQuery := c.Query("species")
 
+	// if species ID not provided, response BadResponse
 	if speciesQuery == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Species ID not provided."})
 		return
@@ -41,12 +42,13 @@ func GetMoviesOfSpecies(c *gin.Context) {
 		filmRecords.Data = append(filmRecords.Data, filmResponse)
 	}
 
+	// response successful request
 	c.JSON(http.StatusOK, filmRecords.Data)
 
 	return
 }
 
-// MakeRequest to API server and return map[string]interface{}
+// MakeRequest to API server and return json map
 func MakeRequest(link string, c *gin.Context) map[string]interface{} {
 
 	client := &http.Client{}
@@ -57,6 +59,7 @@ func MakeRequest(link string, c *gin.Context) map[string]interface{} {
 	response, err := client.Do(request)
 	CatchError(err, c)
 
+	// if response is not http.StatusOK, throw error.
 	if response.StatusCode != http.StatusOK {
 		err := errors.New(response.Status)
 		CatchError(err, c)
@@ -81,6 +84,7 @@ func MakeRequest(link string, c *gin.Context) map[string]interface{} {
 // CatchError and print it, if err is not nil
 func CatchError(err error, c *gin.Context) {
 
+	// if there is error, response error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
